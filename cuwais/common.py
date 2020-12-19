@@ -1,5 +1,5 @@
 import json
-from datetime import date
+from datetime import datetime
 
 
 class User:
@@ -20,35 +20,33 @@ class User:
 
 
 class Submission:
-    def __init__(self, submission_id: str, user_id: str, submission_date: date, url: str, nano_points_start: int):
+    def __init__(self, submission_id: str, user_id: str, submission_date: datetime, url: str):
         self.submission_id = submission_id
         self.user_id = user_id
         self.submission_date = submission_date
         self.url = url
-        self.nano_points_start = nano_points_start
 
     @staticmethod
     def from_dict(d) -> "Submission":
-        submission_date = date.fromisoformat(d['submission_date'])
-        return Submission(d['submission_id'], d['user_id'], submission_date, d['url'], d['nano_points_start'])
+        submission_date = datetime.fromisoformat(d['submission_date'])
+        return Submission(d['submission_id'], d['user_id'], submission_date, d['url'])
 
     def to_dict(self) -> dict:
         return {'_cuwais_type': 'submission',
                 'submission_id': self.submission_id,
                 'user_id': self.user_id,
                 'submission_date': self.submission_date.isoformat(),
-                'url': self.url,
-                'nano_points_start': self.nano_points_start}
+                'url': self.url}
 
 
 class Match:
-    def __init__(self, match_id: str, match_date: date):
+    def __init__(self, match_id: str, match_date: datetime):
         self.match_id = match_id
         self.match_date = match_date
 
     @staticmethod
     def from_dict(d) -> "Match":
-        match_date = date.fromisoformat(d['match_date'])
+        match_date = datetime.fromisoformat(d['match_date'])
         return Match(d['match_id'], match_date)
 
     def to_dict(self) -> dict:
