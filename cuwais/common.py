@@ -64,23 +64,25 @@ class Match:
 
 
 class Result:
-    def __init__(self, match_id: str, submission_id: str, outcome: Outcome, nano_points_delta: int):
+    def __init__(self, match_id: str, submission_id: str, outcome: Outcome, milli_points_delta: int, healthy: bool):
         self.match_id = str(match_id)
         self.submission_id = str(submission_id)
         self.outcome = outcome if isinstance(outcome, Outcome) else Outcome(outcome)
-        self.nano_points_delta = int(nano_points_delta)
+        self.milli_points_delta = int(milli_points_delta)
+        self.healthy = bool(healthy)
 
     @staticmethod
     def from_dict(d) -> "Result":
         outcome = Outcome(d['outcome'])
-        return Result(d['match_id'], d['submission_id'], outcome, d['nano_points_delta'])
+        return Result(d['match_id'], d['submission_id'], outcome, d['milli_points_delta'], d['healthy'])
 
     def to_dict(self) -> dict:
         return {'_cuwais_type': 'result',
                 'match_id': self.match_id,
                 'submission_id': self.submission_id,
                 'outcome': self.outcome.value,
-                'nano_points_delta': self.nano_points_delta}
+                'milli_points_delta': self.milli_points_delta,
+                'healthy': self.healthy}
 
 
 class Encoder(json.JSONEncoder):
