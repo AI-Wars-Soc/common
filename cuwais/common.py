@@ -1,6 +1,18 @@
 import json
 from datetime import datetime
 from enum import Enum, unique
+from typing import Union, List, Tuple
+
+import requests
+import urllib.parse
+
+
+ROOT_URL = "https://database"
+
+
+class InvalidRequestError(RuntimeError):
+    def __init__(self, *args):
+        super(InvalidRequestError, self).__init__(*args)
 
 
 @unique
@@ -15,6 +27,17 @@ class User:
         self.user_id = str(user_id)
         self.username = str(username)
         self.display_name = str(display_name)
+
+    @staticmethod
+    def create(username: str, display_name: str) -> 'User':
+        return _post("add_user", dict(username=username, display_name=display_name))
+
+    @staticmethod
+    def get(user_id: str) -> 'User':
+        return _post("get_user", dict(user_id=user_id))
+
+    def get_latest_submission(self) -> 'Submission':
+        return _post("get_latest_submission", dict(user_id=self.user_id))
 
     @staticmethod
     def from_dict(d) -> "User":
@@ -35,6 +58,16 @@ class Submission:
         self.url = str(url)
 
     @staticmethod
+    def create(user: Union[User, str], url: str) -> 'Submission':
+        if user is User:
+            user = user.user_id
+
+        return _post("add_submission", dict(user_id=user, url=url))
+
+    def get_health(self) -> float:
+        return _post("get_health", dict(submission_id=self.submission_id))
+
+    @staticmethod
     def from_dict(d) -> "Submission":
         submission_date = datetime.fromisoformat(d['submission_date'])
         return Submission(d['submission_id'], d['user_id'], submission_date, d['url'])
@@ -51,6 +84,33 @@ class Match:
     def __init__(self, match_id: str, match_date: datetime):
         self.match_id = str(match_id)
         self.match_date = match_date
+
+    @staticmethod
+    def create_win_loss(winner: Union[Submission, str], loser: Union[Submission, str]) -> 'Match':
+        if winner is Submission:
+            winner = winner.submission_id
+        if loser is Submission:
+            loser = loser.submission_id
+
+        return _post("record_win_loss", dict(submission1=winner, submission2=loser))
+
+    @staticmethod
+    def create_draw(submission1: Union[Submission, str], submission2: Union[Submission, str]) -> 'Match':
+        if submission1 is Submission:
+            submission1 = submission1.submission_id
+        if submission2 is Submission:
+            submission2 = submission2.submission_id
+
+        return _post("record_win_loss", dict(submission1=submission1, submission2=submission2))
+
+    @staticmethod
+    def create_crash(submission1: Union[Submission, str], submission2: Union[Submission, str]) -> 'Match':
+        if submission1 is Submission:
+            submission1 = submission1.submission_id
+        if submission2 is Submission:
+            submission2 = submission2.submission_id
+
+        return _post("record_crash", dict(submission1=submission1, submission2=submission2))
 
     @staticmethod
     def from_dict(d) -> "Match":
@@ -123,3 +183,20 @@ def encode(data):
 def decode(data):
     return json.loads(data, cls=Decoder)
 
+
+def _post(dest, data):
+    url = urllib.parse.urljoin(ROOT_URL, dest)
+    response = requests.post(url, data)
+
+    if response.status_code >= 300:
+        raise InvalidRequestError(response)
+    
+    return decode(response.content)
+
+
+def get_scoreboard() -> List[Tuple[Submission, float]]:
+    return [(a, b) for [a, b] in _post('get_scoreboard', dict())]
+
+
+def get_random_latest_submissions(count=2) -> List[Submission, float]:
+    return _post('get_random_latest_submissions', dict(count=count))
