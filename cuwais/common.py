@@ -198,5 +198,5 @@ def get_scoreboard() -> List[Tuple[Submission, float]]:
     return [(a, b) for [a, b] in _post('get_scoreboard', dict())]
 
 
-def get_random_latest_submissions(count=2) -> List[Submission, float]:
+def get_random_latest_submissions(count=2) -> List[Tuple[Submission, float]]:
     return _post('get_random_latest_submissions', dict(count=count))
