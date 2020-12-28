@@ -22,15 +22,24 @@ class Outcome(Enum):
     Draw = 3
 
 
+@unique
+class LoginProvider(Enum):
+    Local = 1
+    Google = 2
+
+
 class User:
-    def __init__(self, user_id: str, username: str, display_name: str):
+    def __init__(self, user_id: str, username: str, display_name: str,
+                 login_provider: LoginProvider = LoginProvider.Local):
         self.user_id = str(user_id)
         self.username = str(username)
+        self.login_provider = login_provider
         self.display_name = str(display_name)
 
     @staticmethod
-    def create(username: str, display_name: str) -> 'User':
-        return _post("add_user", dict(username=username, display_name=display_name))
+    def create(username: str, display_name: str, login_provider: LoginProvider) -> 'User':
+        login_provider = login_provider.value
+        return _post("add_user", dict(username=username, display_name=display_name, login_provider=login_provider))
 
     @staticmethod
     def get(user_id: str) -> 'User':
@@ -41,13 +50,15 @@ class User:
 
     @staticmethod
     def from_dict(d) -> "User":
-        return User(d['user_id'], d['username'], d['display_name'])
+        login_provider = LoginProvider(int(d['login_provider']))
+        return User(d['user_id'], d['username'], d['display_name'], login_provider)
 
     def to_dict(self) -> dict:
         return {'_cuwais_type': 'user',
                 'user_id': self.user_id,
                 'username': self.username,
-                'display_name': self.display_name}
+                'display_name': self.display_name,
+                'login_provider': self.login_provider.value}
 
 
 class Submission:
