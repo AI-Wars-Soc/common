@@ -7,7 +7,7 @@ import requests
 import urllib.parse
 
 
-ROOT_URL = "http://database"
+ROOT_URL = "http://database:8080"
 
 
 class InvalidRequestError(RuntimeError):
