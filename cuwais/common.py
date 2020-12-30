@@ -41,6 +41,9 @@ class User:
     def add_google_id(self, google_id) -> None:
         return _post("add_google_id", dict(user_id=self.user_id, google_id=google_id))
 
+    def get_google_id(self) -> str:
+        return _post("get_google_id_by_user", dict(user_id=self.user_id))
+
     @staticmethod
     def from_dict(d) -> "User":
         return User(d['user_id'], d['display_name'])
