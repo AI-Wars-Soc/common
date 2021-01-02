@@ -28,25 +28,19 @@ class User:
         self.display_name = str(display_name)
 
     @staticmethod
-    def create(username: str, display_name: str) -> 'User':
-        return _post("add_user", dict(username=username, display_name=display_name))
+    def create(username: str) -> 'User':
+        return _post("add_user", dict(username=username))
 
     @staticmethod
     def get(user_id: str) -> 'User':
         return _post("get_user", dict(user_id=user_id))
 
     @staticmethod
-    def get_from_google_id(google_id: str) -> 'User':
-        return _post("get_user_by_google_id", dict(google_id=google_id))
+    def make_or_get_google_user(google_id: str, name: str) -> 'User':
+        return _post("make_or_get_google_user", dict(google_id=google_id, name=name))
 
     def get_latest_submission(self) -> 'Submission':
         return _post("get_latest_submission", dict(user_id=self.user_id))
-
-    def add_google_id(self, google_id) -> None:
-        return _post("add_google_id", dict(user_id=self.user_id, google_id=google_id))
-
-    def get_google_id(self) -> str:
-        return _post("get_google_id_by_user", dict(user_id=self.user_id))
 
     @staticmethod
     def from_dict(d) -> "User":
