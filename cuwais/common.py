@@ -35,6 +35,10 @@ class User:
     def get(user_id: str) -> 'User':
         return _post("get_user", dict(user_id=user_id))
 
+    @staticmethod
+    def get_from_google_id(google_id: str) -> 'User':
+        return _post("get_user_by_google_id", dict(google_id=google_id))
+
     def get_latest_submission(self) -> 'Submission':
         return _post("get_latest_submission", dict(user_id=self.user_id))
 
