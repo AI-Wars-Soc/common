@@ -29,18 +29,18 @@ class User:
 
     @staticmethod
     def create(username: str) -> 'User':
-        return _post("add_user", dict(username=username))
+        return _get("add_user", dict(username=username))
 
     @staticmethod
     def get(user_id: str) -> 'User':
-        return _post("get_user", dict(user_id=user_id))
+        return _get("get_user", dict(user_id=user_id))
 
     @staticmethod
     def make_or_get_google_user(google_id: str, name: str) -> 'User':
-        return _post("make_or_get_google_user", dict(google_id=google_id, name=name))
+        return _get("make_or_get_google_user", dict(google_id=google_id, name=name))
 
     def get_latest_submission(self) -> 'Submission':
-        return _post("get_latest_submission", dict(user_id=self.user_id))
+        return _get("get_latest_submission", dict(user_id=self.user_id))
 
     @staticmethod
     def from_dict(d) -> "User":
@@ -64,10 +64,10 @@ class Submission:
         if user is User:
             user = user.user_id
 
-        return _post("add_submission", dict(user_id=user, url=url))
+        return _get("add_submission", dict(user_id=user, url=url))
 
     def get_health(self) -> float:
-        return _post("get_health", dict(submission_id=self.submission_id))
+        return _get("get_health", dict(submission_id=self.submission_id))
 
     @staticmethod
     def from_dict(d) -> "Submission":
@@ -94,7 +94,7 @@ class Match:
         if loser is Submission:
             loser = loser.submission_id
 
-        return _post("record_win_loss", dict(submission1=winner, submission2=loser))
+        return _get("record_win_loss", dict(submission1=winner, submission2=loser))
 
     @staticmethod
     def create_draw(submission1: Union[Submission, str], submission2: Union[Submission, str]) -> 'Match':
@@ -103,7 +103,7 @@ class Match:
         if submission2 is Submission:
             submission2 = submission2.submission_id
 
-        return _post("record_win_loss", dict(submission1=submission1, submission2=submission2))
+        return _get("record_win_loss", dict(submission1=submission1, submission2=submission2))
 
     @staticmethod
     def create_crash(submission1: Union[Submission, str], submission2: Union[Submission, str]) -> 'Match':
@@ -112,7 +112,7 @@ class Match:
         if submission2 is Submission:
             submission2 = submission2.submission_id
 
-        return _post("record_crash", dict(submission1=submission1, submission2=submission2))
+        return _get("record_crash", dict(submission1=submission1, submission2=submission2))
 
     @staticmethod
     def from_dict(d) -> "Match":
@@ -186,9 +186,9 @@ def decode(data):
     return json.loads(data, cls=Decoder)
 
 
-def _post(dest, data):
+def _get(dest, data):
     url = urllib.parse.urljoin(ROOT_URL, dest)
-    response = requests.post(url, data)
+    response = requests.get(url, data)
 
     if response.status_code >= 300:
         raise InvalidRequestError(response)
@@ -197,8 +197,8 @@ def _post(dest, data):
 
 
 def get_scoreboard() -> List[Tuple[Submission, float]]:
-    return [(a, b) for [a, b] in _post('get_scoreboard', dict())]
+    return [(a, b) for [a, b] in _get('get_scoreboard', dict())]
 
 
 def get_random_latest_submissions(count=2) -> List[Tuple[Submission, float]]:
-    return _post('get_random_latest_submissions', dict(count=count))
+    return _get('get_random_latest_submissions', dict(count=count))
