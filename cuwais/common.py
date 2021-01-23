@@ -35,6 +35,9 @@ class User:
     def get(user_id: str) -> 'User':
         return _get("get_user", dict(user_id=user_id))
 
+    def is_bot(self) -> bool:
+        return _get("is_user_bot", dict(user_id=self.user_id))
+
     @staticmethod
     def make_or_get_google_user(google_id: str, name: str) -> 'User':
         return _get("make_or_get_google_user", dict(google_id=google_id, name=name))
@@ -83,60 +86,74 @@ class Submission:
 
 
 class Match:
-    def __init__(self, match_id: str, match_date: datetime):
+    def __init__(self, match_id: str, match_date: datetime, recording: str):
         self.match_id = str(match_id)
         self.match_date = match_date
+        self.recording = recording
 
     @staticmethod
-    def create_win_loss(winner: Union[Submission, str], loser: Union[Submission, str]) -> 'Match':
+    def create_win_loss(winner: Union[Submission, str], loser: Union[Submission, str], recording: str) -> 'Match':
         if winner is Submission:
             winner = winner.submission_id
         if loser is Submission:
             loser = loser.submission_id
 
-        return _get("record_win_loss", dict(submission1=winner, submission2=loser))
+        return _get("record_win_loss", dict(submission1=winner, submission2=loser, recording=recording))
 
     @staticmethod
-    def create_draw(submission1: Union[Submission, str], submission2: Union[Submission, str]) -> 'Match':
+    def create_draw(submission1: Union[Submission, str], submission2: Union[Submission, str],
+                    recording: str) -> 'Match':
         if submission1 is Submission:
             submission1 = submission1.submission_id
         if submission2 is Submission:
             submission2 = submission2.submission_id
 
-        return _get("record_win_loss", dict(submission1=submission1, submission2=submission2))
+        return _get("record_win_loss", dict(submission1=submission1, submission2=submission2, recording=recording))
 
     @staticmethod
-    def create_crash(submission1: Union[Submission, str], submission2: Union[Submission, str]) -> 'Match':
+    def create_crash(submission1: Union[Submission, str], submission2: Union[Submission, str],
+                     recording: str) -> 'Match':
         if submission1 is Submission:
             submission1 = submission1.submission_id
         if submission2 is Submission:
             submission2 = submission2.submission_id
 
-        return _get("record_crash", dict(submission1=submission1, submission2=submission2))
+        return _get("record_crash", dict(submission1=submission1, submission2=submission2, recording=recording))
 
     @staticmethod
     def from_dict(d) -> "Match":
         match_date = datetime.fromisoformat(d['match_date'])
-        return Match(d['match_id'], match_date)
+        return Match(d['match_id'], match_date, d['recording'])
 
     def to_dict(self) -> dict:
         return {'_cuwais_type': 'match',
                 'match_id': self.match_id,
-                'match_date': self.match_date.isoformat()}
+                'match_date': self.match_date.isoformat(),
+                'recording': self.recording}
 
 
 class Result:
-    def __init__(self, match_id: str, submission_id: str, outcome: Outcome, milli_points_delta: int, healthy: bool):
+    def __init__(self, match_id: str, submission_id: str, outcome: Outcome, milli_points_delta: int, healthy: bool,
+                 player_id: str):
+        """
+        :param match_id: The id of the match associated with this result
+        :param submission_id: The id of the submission associated with this result
+        :param outcome: The outcome of the match for the given submission
+        :param milli_points_delta: The change in points for the given submission
+        :param healthy: Whether the game was played to completion, false if the code crashed or some other fault
+        :param player_id: eg. 'white', 'black', 'team_1' etc.
+        """
         self.match_id = str(match_id)
         self.submission_id = str(submission_id)
         self.outcome = outcome if isinstance(outcome, Outcome) else Outcome(outcome)
         self.milli_points_delta = int(milli_points_delta)
         self.healthy = bool(healthy)
+        self.player_id = player_id
 
     @staticmethod
     def from_dict(d) -> "Result":
         outcome = Outcome(d['outcome'])
-        return Result(d['match_id'], d['submission_id'], outcome, d['milli_points_delta'], d['healthy'])
+        return Result(d['match_id'], d['submission_id'], outcome, d['milli_points_delta'], d['healthy'], d['player_id'])
 
     def to_dict(self) -> dict:
         return {'_cuwais_type': 'result',
@@ -144,7 +161,8 @@ class Result:
                 'submission_id': self.submission_id,
                 'outcome': self.outcome.value,
                 'milli_points_delta': self.milli_points_delta,
-                'healthy': self.healthy}
+                'healthy': self.healthy,
+                'player_id': self.player_id}
 
 
 class Encoder(json.JSONEncoder):
