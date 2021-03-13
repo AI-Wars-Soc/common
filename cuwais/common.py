@@ -38,6 +38,9 @@ class User:
     def is_bot(self) -> bool:
         return _get("is_user_bot", dict(user_id=self.user_id))
 
+    def is_admin(self) -> bool:
+        return _get("is_user_admin", dict(user_id=self.user_id))
+
     @staticmethod
     def make_or_get_google_user(google_id: str, name: str) -> 'User':
         return _get("make_or_get_google_user", dict(google_id=google_id, name=name))
@@ -56,11 +59,14 @@ class User:
 
 
 class Submission:
-    def __init__(self, submission_id: str, user_id: str, submission_date: datetime, url: str):
+    def __init__(self, submission_id: str, user_id: str, submission_date: datetime, url: str, active: bool,
+                 files_hash: str):
         self.submission_id = str(submission_id)
         self.user_id = str(user_id)
         self.submission_date = submission_date
         self.url = str(url)
+        self.active = bool(active)
+        self.files_hash = str(files_hash)
 
     @staticmethod
     def create(user: Union[User, str], url: str) -> 'Submission':
@@ -75,14 +81,16 @@ class Submission:
     @staticmethod
     def from_dict(d) -> "Submission":
         submission_date = datetime.fromisoformat(d['submission_date'])
-        return Submission(d['submission_id'], d['user_id'], submission_date, d['url'])
+        return Submission(d['submission_id'], d['user_id'], submission_date, d['url'], d['active'], d['files_hash'])
 
     def to_dict(self) -> dict:
         return {'_cuwais_type': 'submission',
                 'submission_id': self.submission_id,
                 'user_id': self.user_id,
                 'submission_date': self.submission_date.isoformat(),
-                'url': self.url}
+                'url': self.url,
+                'active': self.active,
+                'files_hash': self.files_hash}
 
 
 class Match:
@@ -148,7 +156,7 @@ class Result:
         self.outcome = outcome if isinstance(outcome, Outcome) else Outcome(outcome)
         self.milli_points_delta = int(milli_points_delta)
         self.healthy = bool(healthy)
-        self.player_id = player_id
+        self.player_id = str(player_id)
 
     @staticmethod
     def from_dict(d) -> "Result":

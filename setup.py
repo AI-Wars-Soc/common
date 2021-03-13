@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="cuwais-common",
-    version="0.2.3-dev2101231",
+    version="0.3.1-dev2103131",
     author="Joe O'Connor",
     author_email="jo429@cam.ac.uk",
     description="The shared libraries for CUWAIS competitions",
