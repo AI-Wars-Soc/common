@@ -1,3 +1,4 @@
+import hashlib
 import json
 from datetime import datetime
 from enum import Enum, unique
@@ -75,6 +76,13 @@ class Submission:
 
         return _get("add_submission", dict(user_id=user, url=url))
 
+    @staticmethod
+    def calculate_git_hash(commit_hash: str, url: str) -> str:
+        m = hashlib.sha256()
+        m.update(commit_hash)
+        m.update(url)
+        return str(m.hexdigest())
+
     def get_health(self) -> float:
         return _get("get_health", dict(submission_id=self.submission_id))
 
@@ -97,7 +105,7 @@ class Match:
     def __init__(self, match_id: str, match_date: datetime, recording: str):
         self.match_id = str(match_id)
         self.match_date = match_date
-        self.recording = recording
+        self.recording = str(recording)
 
     @staticmethod
     def create_win_loss(winner: Union[Submission, str], loser: Union[Submission, str], recording: str) -> 'Match':
