@@ -39,8 +39,14 @@ class User:
     def is_bot(self) -> bool:
         return _get("is_user_bot", dict(user_id=self.user_id))
 
+    def set_bot(self, value):
+        _get("set_user_bot", dict(user_id=self.user_id, active=value))
+
     def is_admin(self) -> bool:
         return _get("is_user_admin", dict(user_id=self.user_id))
+
+    def set_admin(self, value):
+        _get("set_user_admin", dict(user_id=self.user_id, active=value))
 
     @staticmethod
     def make_or_get_google_user(google_id: str, name: str) -> 'User':
@@ -48,6 +54,12 @@ class User:
 
     def get_latest_submission(self) -> 'Submission':
         return _get("get_latest_submission", dict(user_id=self.user_id))
+
+    def get_all_submissions(self) -> List['Submission']:
+        return _get("get_user_submissions", dict(user_id=self.user_id))
+
+    def get_all_results(self) -> List['Result']:
+        return _get("get_user_results", dict(user_id=self.user_id))
 
     @staticmethod
     def from_dict(d) -> "User":
@@ -86,6 +98,13 @@ class Submission:
     def get_health(self) -> float:
         return _get("get_health", dict(submission_id=self.submission_id))
 
+    def set_active(self, active):
+        _get("set_submission_active", dict(submission_id=self.submission_id, active=active))
+        self.active = active
+
+    def get_all_results(self) -> List['Result']:
+        return _get("get_results", dict(submission_id=self.submission_id))
+
     @staticmethod
     def from_dict(d) -> "Submission":
         submission_date = datetime.fromisoformat(d['submission_date'])
@@ -108,33 +127,37 @@ class Match:
         self.recording = str(recording)
 
     @staticmethod
-    def create_win_loss(winner: Union[Submission, str], loser: Union[Submission, str], recording: str) -> 'Match':
+    def create_win_loss(winner: Union[Submission, str], loser: Union[Submission, str], recording: str,
+                        winner_role: str, loser_role: str) -> 'Match':
         if winner is Submission:
             winner = winner.submission_id
         if loser is Submission:
             loser = loser.submission_id
 
-        return _get("record_win_loss", dict(submission1=winner, submission2=loser, recording=recording))
+        return _get("record_win_loss", dict(submission1=winner, submission2=loser, recording=recording,
+                                            pid1=winner_role, pid2=loser_role))
 
     @staticmethod
     def create_draw(submission1: Union[Submission, str], submission2: Union[Submission, str],
-                    recording: str) -> 'Match':
+                    recording: str, role1: str, role2: str) -> 'Match':
         if submission1 is Submission:
             submission1 = submission1.submission_id
         if submission2 is Submission:
             submission2 = submission2.submission_id
 
-        return _get("record_win_loss", dict(submission1=submission1, submission2=submission2, recording=recording))
+        return _get("record_win_loss", dict(submission1=submission1, submission2=submission2, recording=recording,
+                                            pid1=role1, pid2=role2))
 
     @staticmethod
     def create_crash(submission1: Union[Submission, str], submission2: Union[Submission, str],
-                     recording: str) -> 'Match':
+                     recording: str, role1: str, role2: str) -> 'Match':
         if submission1 is Submission:
             submission1 = submission1.submission_id
         if submission2 is Submission:
             submission2 = submission2.submission_id
 
-        return _get("record_crash", dict(submission1=submission1, submission2=submission2, recording=recording))
+        return _get("record_crash", dict(submission1=submission1, submission2=submission2, recording=recording,
+                                         pid1=role1, pid2=role2))
 
     @staticmethod
     def from_dict(d) -> "Match":
