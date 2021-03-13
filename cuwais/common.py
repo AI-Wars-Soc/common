@@ -79,8 +79,8 @@ class Submission:
     @staticmethod
     def calculate_git_hash(commit_hash: str, url: str) -> str:
         m = hashlib.sha256()
-        m.update(commit_hash)
-        m.update(url)
+        m.update(commit_hash.encode('utf-8'))
+        m.update(url.encode('utf-8'))
         return str(m.hexdigest())
 
     def get_health(self) -> float:
