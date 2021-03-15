@@ -11,16 +11,28 @@ import urllib.parse
 ROOT_URL = "http://database:8080"
 
 
-class InvalidRequestError(RuntimeError):
-    def __init__(self, *args):
-        super(InvalidRequestError, self).__init__(*args)
-
-
 @unique
 class Outcome(Enum):
     Win = 1
     Loss = 2
     Draw = 3
+
+
+class Error:
+    def __init__(self, error_type: str, error_message: str, extra_data: dict):
+        self.error_type = str(error_type)
+        self.error_message = str(error_message)
+        self.extra_data = dict(extra_data)
+
+    @staticmethod
+    def from_dict(d) -> "Error":
+        return Error(d['error_type'], d['error_message'], d['extra_data'])
+
+    def to_dict(self) -> dict:
+        return {'_cuwais_type': 'error',
+                'error_type': self.error_type,
+                'error_message': self.error_message,
+                'extra_data': self.extra_data}
 
 
 class User:
@@ -83,7 +95,7 @@ class Submission:
 
     @staticmethod
     def create(user: Union[User, str], url: str) -> 'Submission':
-        if user is User:
+        if isinstance(user, User):
             user = user.user_id
 
         return _get("add_submission", dict(user_id=user, url=url))
@@ -129,9 +141,9 @@ class Match:
     @staticmethod
     def create_win_loss(winner: Union[Submission, str], loser: Union[Submission, str], recording: str,
                         winner_role: str, loser_role: str) -> 'Match':
-        if winner is Submission:
+        if isinstance(winner, Submission):
             winner = winner.submission_id
-        if loser is Submission:
+        if isinstance(loser, Submission):
             loser = loser.submission_id
 
         return _get("record_win_loss", dict(submission1=winner, submission2=loser, recording=recording,
@@ -140,9 +152,9 @@ class Match:
     @staticmethod
     def create_draw(submission1: Union[Submission, str], submission2: Union[Submission, str],
                     recording: str, role1: str, role2: str) -> 'Match':
-        if submission1 is Submission:
+        if isinstance(submission1, Submission):
             submission1 = submission1.submission_id
-        if submission2 is Submission:
+        if isinstance(submission2, Submission):
             submission2 = submission2.submission_id
 
         return _get("record_win_loss", dict(submission1=submission1, submission2=submission2, recording=recording,
@@ -151,9 +163,9 @@ class Match:
     @staticmethod
     def create_crash(submission1: Union[Submission, str], submission2: Union[Submission, str],
                      recording: str, role1: str, role2: str) -> 'Match':
-        if submission1 is Submission:
+        if isinstance(submission1, Submission):
             submission1 = submission1.submission_id
-        if submission2 is Submission:
+        if isinstance(submission2, Submission):
             submission2 = submission2.submission_id
 
         return _get("record_crash", dict(submission1=submission1, submission2=submission2, recording=recording,
@@ -205,7 +217,8 @@ class Result:
 
 
 class Encoder(json.JSONEncoder):
-    _encoders = {User,
+    _encoders = {Error,
+                 User,
                  Submission,
                  Match,
                  Result}
@@ -218,7 +231,8 @@ class Encoder(json.JSONEncoder):
 
 
 class Decoder(json.JSONDecoder):
-    _decoders = {'user': User.from_dict,
+    _decoders = {'error': Error.from_dict,
+                 'user': User.from_dict,
                  'submission': Submission.from_dict,
                  'match': Match.from_dict,
                  'result': Result.from_dict}
@@ -243,12 +257,25 @@ def decode(data):
     return json.loads(data, cls=Decoder)
 
 
+class InvalidRequestError(RuntimeError):
+    def __init__(self, code: int, error: Error, *args):
+        super(InvalidRequestError, self).__init__(*args)
+        self.code = code
+        self.error = error
+
+
 def _get(dest, data):
     url = urllib.parse.urljoin(ROOT_URL, dest)
     response = requests.get(url, data)
 
-    if response.status_code >= 300:
-        raise InvalidRequestError(response)
+    decoded = decode(response.content)
+
+    if response.status_code >= 300 and not isinstance(decoded, Error):
+        raise RuntimeError("Response code is " + str(response.status_code) +
+                           " but decoded type is not error: " + decoded)
+
+    if isinstance(decoded, Error):
+        raise InvalidRequestError(response.status_code, decoded)
     
     return decode(response.content)
 
