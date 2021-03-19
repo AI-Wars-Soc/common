@@ -30,6 +30,18 @@ class User(_Base):
 
     submissions = relationship("Submission", back_populates="user_id")
 
+    def to_public_dict(self) -> dict:
+        return {'_cuwais_type': 'user',
+                'user_id': self.id,
+                'display_name': self.display_name,
+                'is_bot': self.is_bot,
+                'is_admin': self.is_admin}
+
+    def to_private_dict(self) -> dict:
+        private_vals = {'google_id': self.google_id}
+
+        return {**self.to_public_dict(), **private_vals}
+
     def __repr__(self):
         return f"User(id={self.id!r}, display_name={self.display_name!r})"
 
@@ -47,6 +59,22 @@ class Submission:
     user = relationship("User", back_populates="submissions")
     results = relationship("Result", back_populates="submission_id")
 
+    def to_public_dict(self) -> dict:
+        return {'_cuwais_type': 'submission',
+                'submission_id': self.id,
+                'user_id': self.user_id,
+                'submission_date': self.submission_date.isoformat()}
+
+    def to_private_dict(self) -> dict:
+        private_vals = {'url': self.url,
+                        'active': self.active,
+                        'files_hash': self.files_hash}
+
+        return {**self.to_public_dict(), **private_vals}
+
+    def __repr__(self):
+        return f"Submission(id={self.id!r}, url={self.url!r}, url={self.submission_date!r})"
+
 
 class Match:
     __tablename__ = 'match'
@@ -56,6 +84,20 @@ class Match:
     recording = Column(Text, unique=False, nullable=False)
 
     results = relationship("Result", back_populates="match_id")
+
+    def to_public_dict(self) -> dict:
+        return {'_cuwais_type': 'match',
+                'match_id': self.id,
+                'match_date': self.match_date.isoformat(),
+                'recording': self.recording}
+
+    def to_private_dict(self) -> dict:
+        private_vals = {}
+
+        return {**self.to_public_dict(), **private_vals}
+
+    def __repr__(self):
+        return f"Match(id={self.id!r}, match date={self.match_date!r})"
 
 
 class Result:
@@ -71,6 +113,22 @@ class Result:
 
     submission = relationship("Submission", back_populates="results")
     match = relationship("Match", back_populates="results")
+
+    def to_public_dict(self) -> dict:
+        return {'_cuwais_type': 'result',
+                'match_id': self.match_id,
+                'submission_id': self.submission_id,
+                'outcome': self.outcome,
+                'player_id': self.player_id}
+
+    def to_private_dict(self) -> dict:
+        private_vals = {'milli_points_delta': self.milli_points_delta,
+                        'healthy': self.healthy}
+
+        return {**self.to_public_dict(), **private_vals}
+
+    def __repr__(self):
+        return f"Result(id={self.id!r}, match id={self.match_id!r}, submission id={self.submission_id!r})"
 
 
 def create_tables():
