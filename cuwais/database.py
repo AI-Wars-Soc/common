@@ -55,7 +55,7 @@ class Submission(_Base):
         return {'_cuwais_type': 'submission',
                 'submission_id': self.id,
                 'user_id': self.user_id,
-                'submission_date': self.submission_date.isoformat()}
+                'submission_date': self.submission_date}
 
     def to_private_dict(self) -> dict:
         private_vals = {'url': self.url,
@@ -80,7 +80,7 @@ class Match(_Base):
     def to_public_dict(self) -> dict:
         return {'_cuwais_type': 'match',
                 'match_id': self.id,
-                'match_date': self.match_date.isoformat(),
+                'match_date': self.match_date,
                 'recording': self.recording}
 
     def to_private_dict(self) -> dict:
