@@ -20,7 +20,7 @@ class User(_Base):
     is_bot = Column(Boolean, unique=False, nullable=False, default=False)
     is_admin = Column(Boolean, unique=False, nullable=False, default=False)
 
-    submissions = relationship("Submission", back_populates="user_id")
+    submissions = relationship("Submission", back_populates="user")
 
     def to_public_dict(self) -> dict:
         return {'_cuwais_type': 'user',
@@ -49,7 +49,7 @@ class Submission(_Base):
     files_hash = Column(Text, unique=False, nullable=False)
 
     user = relationship("User", back_populates="submissions")
-    results = relationship("Result", back_populates="submission_id")
+    results = relationship("Result", back_populates="submission")
 
     def to_public_dict(self) -> dict:
         return {'_cuwais_type': 'submission',
@@ -75,7 +75,7 @@ class Match(_Base):
     match_date = Column(DateTime, unique=False, nullable=False)
     recording = Column(Text, unique=False, nullable=False)
 
-    results = relationship("Result", back_populates="match_id")
+    results = relationship("Result", back_populates="match")
 
     def to_public_dict(self) -> dict:
         return {'_cuwais_type': 'match',
