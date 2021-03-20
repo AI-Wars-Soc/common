@@ -46,7 +46,7 @@ class User(_Base):
         return f"User(id={self.id!r}, display_name={self.display_name!r})"
 
 
-class Submission:
+class Submission(_Base):
     __tablename__ = 'submission'
 
     id = Column(Integer, primary_key=True)
@@ -76,7 +76,7 @@ class Submission:
         return f"Submission(id={self.id!r}, url={self.url!r}, url={self.submission_date!r})"
 
 
-class Match:
+class Match(_Base):
     __tablename__ = 'match'
 
     id = Column(Integer, primary_key=True)
@@ -100,7 +100,7 @@ class Match:
         return f"Match(id={self.id!r}, match date={self.match_date!r})"
 
 
-class Result:
+class Result(_Base):
     __tablename__ = 'result'
 
     id = Column(Integer, primary_key=True)
