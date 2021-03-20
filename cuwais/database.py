@@ -11,14 +11,6 @@ def create_session() -> Session:
     return Session(_Engine)
 
 
-class Bot(_Base):
-    user_id = Column(Integer, ForeignKey('user.id'), primary_key=True)
-
-
-class Admin(_Base):
-    user_id = Column(Integer, ForeignKey('user.id'), primary_key=True)
-
-
 class User(_Base):
     __tablename__ = 'user'
 
