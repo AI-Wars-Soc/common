@@ -1,6 +1,6 @@
 import os
 
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, DateTime, Text, Boolean
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, DateTime, Text, Boolean, Float
 from sqlalchemy.orm import declarative_base, relationship, Session
 
 _Base = declarative_base()
@@ -99,7 +99,7 @@ class Result(_Base):
     match_id = Column(Integer, ForeignKey('match.id'), nullable=False)
     submission_id = Column(Integer, ForeignKey('submission.id'), nullable=False)
     outcome = Column(Integer, unique=False, nullable=False)
-    milli_points_delta = Column(Integer, unique=False, nullable=False)
+    points_delta = Column(Float, unique=False, nullable=False)
     healthy = Column(Boolean, unique=False, nullable=False)
     player_id = Column(Text, unique=False, nullable=False)
 
@@ -114,7 +114,7 @@ class Result(_Base):
                 'player_id': self.player_id}
 
     def to_private_dict(self) -> dict:
-        private_vals = {'milli_points_delta': self.milli_points_delta,
+        private_vals = {'points_delta': self.points_delta,
                         'healthy': self.healthy}
 
         return {**self.to_public_dict(), **private_vals}
