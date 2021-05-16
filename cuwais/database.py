@@ -1,6 +1,6 @@
 import os
 
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, DateTime, Text, Boolean, Float
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, DateTime, Text, Boolean, Float, Index
 from sqlalchemy.orm import declarative_base, relationship, Session
 
 _Base = declarative_base()
@@ -15,37 +15,41 @@ class User(_Base):
     __tablename__ = 'user'
 
     id = Column(Integer, primary_key=True)
-    display_name = Column(Text, nullable=False)
-    google_id = Column(String(255), nullable=True, unique=True)
+    real_name = Column(Text, nullable=False)
+    nickname = Column(Text, nullable=False, unique=True)
+    google_id = Column(String(255), nullable=True, unique=True, index=True)
     is_bot = Column(Boolean, unique=False, nullable=False, default=False)
     is_admin = Column(Boolean, unique=False, nullable=False, default=False)
+    display_real_name = Column(Boolean, unique=False, nullable=False, default=False)
 
     submissions = relationship("Submission", back_populates="user")
 
     def to_public_dict(self) -> dict:
         return {'_cuwais_type': 'user',
                 'user_id': self.id,
-                'display_name': self.display_name,
+                'display_name': self.nickname if not self.display_real_name else self.real_name,
+                'nickname': self.nickname,
                 'is_bot': self.is_bot,
                 'is_admin': self.is_admin}
 
     def to_private_dict(self) -> dict:
-        private_vals = {'google_id': self.google_id}
+        private_vals = {'real_name': self.real_name,
+                        'google_id': self.google_id}
 
         return {**self.to_public_dict(), **private_vals}
 
     def __repr__(self):
-        return f"User(id={self.id!r}, display_name={self.display_name!r})"
+        return f"User(id={self.id!r}, nickname={self.nickname!r})"
 
 
 class Submission(_Base):
     __tablename__ = 'submission'
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
+    user_id = Column(Integer, ForeignKey('user.id'), nullable=False, index=True)
     submission_date = Column(DateTime, unique=False, nullable=False)
     url = Column(Text, unique=False, nullable=False)
-    active = Column(Boolean, unique=False, nullable=False, default=True)
+    active = Column(Boolean, unique=False, nullable=False, default=True, index=True)
     files_hash = Column(Text, unique=False, nullable=False)
 
     user = relationship("User", back_populates="submissions")
@@ -72,7 +76,7 @@ class Match(_Base):
     __tablename__ = 'match'
 
     id = Column(Integer, primary_key=True)
-    match_date = Column(DateTime, unique=False, nullable=False)
+    match_date = Column(DateTime, unique=False, nullable=False, index=True)
     recording = Column(Text, unique=False, nullable=False)
 
     results = relationship("Result", back_populates="match")
@@ -96,11 +100,11 @@ class Result(_Base):
     __tablename__ = 'result'
 
     id = Column(Integer, primary_key=True)
-    match_id = Column(Integer, ForeignKey('match.id'), nullable=False)
-    submission_id = Column(Integer, ForeignKey('submission.id'), nullable=False)
-    outcome = Column(Integer, unique=False, nullable=False)
+    match_id = Column(Integer, ForeignKey('match.id'), nullable=False, index=True)
+    submission_id = Column(Integer, ForeignKey('submission.id'), nullable=False, index=True)
+    outcome = Column(Integer, unique=False, nullable=False, index=True)
     points_delta = Column(Float, unique=False, nullable=False)
-    healthy = Column(Boolean, unique=False, nullable=False)
+    healthy = Column(Boolean, unique=False, nullable=False, index=True)
     player_id = Column(Text, unique=False, nullable=False)
 
     submission = relationship("Submission", back_populates="results")
@@ -121,6 +125,9 @@ class Result(_Base):
 
     def __repr__(self):
         return f"Result(id={self.id!r}, match id={self.match_id!r}, submission id={self.submission_id!r})"
+
+
+Index('healthy_outcome_index', Result.healthy, Result.outcome)
 
 
 def create_tables():
