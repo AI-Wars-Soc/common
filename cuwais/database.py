@@ -16,7 +16,7 @@ class User(_Base):
 
     id = Column(Integer, primary_key=True)
     real_name = Column(Text, nullable=False)
-    nickname = Column(Text, nullable=False, unique=True)
+    nickname = Column(Text, nullable=False, unique=True, index=True)
     google_id = Column(String(255), nullable=True, unique=True, index=True)
     is_bot = Column(Boolean, unique=False, nullable=False, default=False)
     is_admin = Column(Boolean, unique=False, nullable=False, default=False)
@@ -25,12 +25,18 @@ class User(_Base):
     submissions = relationship("Submission", back_populates="user")
 
     def to_public_dict(self) -> dict:
-        return {'_cuwais_type': 'user',
-                'user_id': self.id,
-                'display_name': self.nickname if not self.display_real_name else self.real_name,
-                'nickname': self.nickname,
-                'is_bot': self.is_bot,
-                'is_admin': self.is_admin}
+        public_vals = {'_cuwais_type': 'user',
+                       'user_id': self.id,
+                       'display_name': self.nickname if not self.display_real_name else self.real_name,
+                       'nickname': self.nickname,
+                       'display_real_name': self.display_real_name,
+                       'is_bot': self.is_bot,
+                       'is_admin': self.is_admin}
+
+        if self.display_real_name:
+            public_vals['real_name'] = self.real_name
+
+        return public_vals
 
     def to_private_dict(self) -> dict:
         private_vals = {'real_name': self.real_name,
