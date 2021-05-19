@@ -3,8 +3,10 @@ import os
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, DateTime, Text, Boolean, Float, Index
 from sqlalchemy.orm import declarative_base, relationship, Session
 
+from cuwais.config import config_file
+
 _Base = declarative_base()
-_Engine = create_engine(str(os.getenv('DATABASE_CONNECTION')), echo=True, future=True)
+_Engine = create_engine(config_file.get_or_default("db_connection", "sqlite+pysqlite:///database.sqlite"), echo=True, future=True)
 
 
 def create_session() -> Session:
@@ -24,10 +26,14 @@ class User(_Base):
 
     submissions = relationship("Submission", back_populates="user")
 
+    @property
+    def display_name(self):
+        return self.nickname if not self.display_real_name else self.real_name
+
     def to_public_dict(self) -> dict:
         public_vals = {'_cuwais_type': 'user',
                        'user_id': self.id,
-                       'display_name': self.nickname if not self.display_real_name else self.real_name,
+                       'display_name': self.display_name,
                        'nickname': self.nickname,
                        'display_real_name': self.display_real_name,
                        'is_bot': self.is_bot,
