@@ -6,7 +6,7 @@ from sqlalchemy.orm import declarative_base, relationship, Session
 from cuwais.config import config_file
 
 _Base = declarative_base()
-_Engine = create_engine(config_file.get_or_default("db_connection", "sqlite+pysqlite:///database.sqlite"), echo=True, future=True)
+_Engine = create_engine(config_file.get("db_connection"), echo=config_file.get("debug"), future=True)
 
 
 def create_session() -> Session:
