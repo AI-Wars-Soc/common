@@ -25,7 +25,7 @@ def _fill_in_defaults(data: Optional[Union[dict, list]], defaults: Optional[Unio
 
         return data
 
-    raise RuntimeError("Unknown data type: " + type(data))
+    return data
 
 
 class Config:
@@ -38,8 +38,9 @@ class Config:
         if not os.path.isfile(path):
             logging.error(f"Could not find config file {path}")
             self._data = None
-        with open(path, 'r') as stream:
-            self._data = yaml.safe_load(stream)
+        else:
+            with open(path, 'r') as stream:
+                self._data = yaml.safe_load(stream)
 
         if self._defaults is None:
             self._defaults = dict()
