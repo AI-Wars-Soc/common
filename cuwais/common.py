@@ -9,6 +9,18 @@ class Outcome(Enum):
     Draw = 3
 
 
+@unique
+class Result(Enum):
+    ValidGame = "valid-game"
+    IllegalMove = "illegal-move"
+    IllegalBoard = "illegal-board"
+    BrokenEntryPoint = "broken-entry-point"
+    UnknownResultType = "unknown-result-type"
+    GameUnfinished = "game-unfinished"
+    Timeout = "timeout"
+    ProcessKilled = "process-killed"
+
+
 def calculate_git_hash(user_id: int, commit_hash: str, url: str) -> str:
     m = hashlib.sha256()
     m.update(str(user_id).encode('utf-8'))

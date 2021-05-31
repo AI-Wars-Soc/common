@@ -118,6 +118,8 @@ class Result(_Base):
     points_delta = Column(Float, unique=False, nullable=False)
     healthy = Column(Boolean, unique=False, nullable=False, index=True)
     player_id = Column(Text, unique=False, nullable=False)
+    prints = Column(Text, unique=False, nullable=True)
+    result_code = Column(Text, unique=False, nullable=False)
 
     submission = relationship("Submission", back_populates="results")
     match = relationship("Match", back_populates="results")
@@ -131,7 +133,9 @@ class Result(_Base):
 
     def to_private_dict(self) -> dict:
         private_vals = {'points_delta': self.points_delta,
-                        'healthy': self.healthy}
+                        'healthy': self.healthy,
+                        'prints': self.prints,
+                        'result_code': self.result_code}
 
         return {**self.to_public_dict(), **private_vals}
 
