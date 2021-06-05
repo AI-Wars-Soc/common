@@ -12,6 +12,7 @@ class Outcome(Enum):
 @unique
 class Result(Enum):
     ValidGame = "valid-game"
+    Exception = "exception"
     IllegalMove = "illegal-move"
     IllegalBoard = "illegal-board"
     BrokenEntryPoint = "broken-entry-point"
