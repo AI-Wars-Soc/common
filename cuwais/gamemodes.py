@@ -17,6 +17,18 @@ class Gamemode:
     def player_count(self):
         return len(self._players)
 
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def players(self):
+        return self._players.copy()
+
+    @property
+    def options(self):
+        return self._options.copy()
+
     @abc.abstractmethod
     def setup(self, **options):
         """Gets the board that will be used by a game instance"""
