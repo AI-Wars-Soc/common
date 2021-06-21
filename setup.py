@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="cuwais-common",
-    version="1.2.2-dev2106051",
+    version="1.3.0-dev2106211",
     author="Joe O'Connor",
     author_email="jo429@cam.ac.uk",
     description="The shared libraries for CUWAIS competitions",
@@ -20,7 +20,8 @@ setuptools.setup(
     ],
     install_requires=[
         'sqlalchemy~=1.4.1',
-        'pyyaml~=5.4.1'
+        'pyyaml~=5.4.1',
+        'chess'
     ],
     python_requires='>=3.6',
 )
