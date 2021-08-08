@@ -1,0 +1,34 @@
+db_connection: "postgresql://aisoc:aisoc@database"
+debug: false
+profile: false
+soc_name: "cuwais"
+google_client_id: "389788965612-3hlb0b2lqamt2v7jupphcggnk0t9sol9.apps.googleusercontent.com"
+allowed_email_domain: ~
+max_repo_size_bytes: 10000000
+initial_score: 1000
+score_turbulence: 0.5
+gamemode:
+  id: chess
+  options:
+    chess960: true
+    turn_time: 10
+    player_turn_time: 300
+front_end:
+  server_name: "lvh.me"
+  access_token_expire_minutes: 300
+  access_token_algorithm: "HS256"
+matchmaker:
+  target_seconds_per_game: 10
+  matchmakers: 3
+localisation:
+  crash_reasons:
+    valid-game: "This means nothing went wrong. Your game should have completed normally"
+    exception: "This means your AI raised an exception while trying to create a move"
+    illegal-move: "This means your AI returned a move which was not allowed"
+    illegal-board: "This means there was a mismatch between the host and client boards. This means either you've intentionally tried to break something, or there's a bug in our system"
+    broken-entry-point: "This means your repository did not have the right method to call! Make sure you have all of the same file and method names as the base repository"
+    unknown-result-type: "This is definitely a bug. Please let someone know"
+    game-unfinished: "This means your AI stopped playing the game before the game was done. This usually means your AI somehow crashed, but probably not by timing out"
+    timeout: "This means your AI ran out of time. Try making moves faster!"
+    process-killed: "This means your AI used up too much of the system's resources. Usually this means you used too much memory"
+  default_crash_reason: "I'm not sure what this means, so is probably a bug. Sorry!"
