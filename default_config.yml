@@ -1,7 +1,7 @@
 db_connection: "postgresql://aisoc:aisoc@database"
 debug: false
 profile: false
-soc_name: "cuwais"
+soc_name: "AIWarSoc"
 google_client_id: "389788965612-3hlb0b2lqamt2v7jupphcggnk0t9sol9.apps.googleusercontent.com"
 allowed_email_domain: ~
 max_repo_size_bytes: 10000000
@@ -20,6 +20,11 @@ front_end:
 matchmaker:
   target_seconds_per_game: 10
   matchmakers: 3
+submission_runner:
+  sandbox_unrun_timeout_seconds: 360
+  sandbox_run_timeout_seconds: 360
+  sandbox_memory_limit: 256m
+  sandbox_cpu_count: 0.5
 localisation:
   crash_reasons:
     valid-game: "This means nothing went wrong. Your game should have completed normally"
