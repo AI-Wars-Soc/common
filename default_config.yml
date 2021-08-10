@@ -1,5 +1,6 @@
 db_connection: "postgresql://aisoc:aisoc@database"
 debug: false
+secure: false
 profile: false
 soc_name: "AIWarSoc"
 google_client_id: "389788965612-3hlb0b2lqamt2v7jupphcggnk0t9sol9.apps.googleusercontent.com"
