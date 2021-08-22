@@ -8,6 +8,7 @@ allowed_email_domain: ~
 max_repo_size_bytes: 10000000
 initial_score: 1000
 score_turbulence: 0.5
+admin_emails: []
 gamemode:
   id: chess
   options:
