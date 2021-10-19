@@ -11,6 +11,7 @@ score_turbulence: 0.5
 admin_emails: []
 gamemode:
   id: chess
+  default_submission: ~
   options:
     chess960: true
     turn_time: 10
@@ -39,3 +40,9 @@ localisation:
     timeout: "This means your AI ran out of time. Try making moves faster!"
     process-killed: "This means your AI used up too much of the system's resources. Usually this means you used too much memory"
   default_crash_reason: "I'm not sure what this means, so is probably a bug. Sorry!"
+  git_errors:
+    invalid-url: "Invalid GIT URL"
+    already-submitted: "GIT repo already submitted"
+    too-large: "GIT repo is too large!"
+    clone-fail: "Failed to clone! :("
+  submission_access_error: "You do not own that submission!"
